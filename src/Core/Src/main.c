@@ -19,12 +19,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "software_timer.h"
-#include "string.h"
-#include <stdio.h>
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "software_timer.h"
+#include "string.h"
+#include "stdint.h"
+#include "stdio.h"
+#include "scheduler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -136,15 +138,18 @@ void checkCommand(){
 		if (!strcmp(command_data,"!RST")){
 			uart_state = START;
 			resetCommand();
+//			resetBuffer();
 			return;
 		}
 		else if (!strcmp(command_data,"!OK")) {
 			uart_state = END;
 			resetCommand();
+//			resetBuffer();
 			return;
 		}
 		else{
 			resetCommand();
+//			resetBuffer();
 			HAL_UART_Transmit(&huart2, (void*)str, sprintf(str,"\r\nWrong Command\r\n"), 1000);
 			uart_state = IDLE;
 		}
@@ -159,13 +164,14 @@ void uart_communication_fsm(){
 		ADC_value = HAL_ADC_GetValue(&hadc1);
 		HAL_ADC_Stop(&hadc1);
 		HAL_UART_Transmit(&huart2, (void*)str, sprintf(str,"\r\n!ADC=%ld#\r\n",ADC_value), 1000);
-		setTimer(0, 200);
+		setTimer(0, 300);
 		uart_state = DOING;
 		break;
 	case DOING:
 		if (timer_flag[0] == 1){
 			setTimer(0, 300);
 			resetCommand();
+//			resetBuffer();
 			uart_state = START;
 		}
 		break;
@@ -179,6 +185,21 @@ void uart_communication_fsm(){
 		break;
 	default:
 		break;
+	}
+}
+
+
+void run_command_parser(){
+	if (buffer_flag == 1){
+		command_parser_fsm();
+		buffer_flag = 0;
+	}
+}
+void toggleLED(){
+//	setTimer(1, 50);
+	if(timer_flag[1]){
+		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+		setTimer(1, 50);
 	}
 }
 /* USER CODE END 0 */
@@ -218,24 +239,30 @@ int main(void)
   HAL_UART_Receive_IT(&huart2, &temp , 1);
   HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  setTimer(0, 11);
+//  setTimer(0, 11);
   setTimer(1, 2);
+  SCH_Init();
+  SCH_Add_Task(timerRun, 0, 1);
+  SCH_Add_Task(toggleLED, 0, 10);
+  SCH_Add_Task(run_command_parser, 1, 10);
+  SCH_Add_Task(uart_communication_fsm, 1, 10);
   while(1)
   {
 //	  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
 //	  HAL_Delay(1000);
-    /* USER CODE END WHILE */
-//	  if(timer_flag[1] == 1){
-//		  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-//		  setTimer(1, 100);
+//	  if (buffer_flag == 1){
+//		  command_parser_fsm();
+//		  buffer_flag = 0;
 //	  }
-	  if (buffer_flag == 1){
-		  command_parser_fsm();
-		  buffer_flag = 0;
-	  }
-	  uart_communication_fsm();
+//	  uart_communication_fsm();
+//	  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, 1);
+	  SCH_Dispatch_Tasks();
+
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -267,7 +294,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV4;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -347,7 +374,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 7999;
+  htim2.Init.Prescaler = 1999;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 9;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -421,18 +448,25 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : LED_Pin */
+  /*Configure GPIO pin : LED_RED_Pin */
   GPIO_InitStruct.Pin = LED_RED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_RED_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	timerRun();
+	SCH_Update();
+//	timerRun();
 }
 /* USER CODE END 4 */
 

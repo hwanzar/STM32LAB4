@@ -6,9 +6,9 @@
  </FRAME>
  <MODULE name="VSMDEBUG">
   <PWI>
-   <POPUP w="1486" x="216" flags="00000002" y="500" h="1052" pid="0" iid="-1">
+   <POPUP w="1486" x="216" flags="00000002" y="0" h="1052" pid="0" iid="-1">
     <PROPERTIES>
-     <ITEM name="Message Column Width">1202</ITEM>
+     <ITEM name="Message Column Width">1323</ITEM>
      <ITEM name="ShowGrid">No</ITEM>
      <ITEM name="Source Column Width">100</ITEM>
      <ITEM name="Time Column Width">120</ITEM>
@@ -32,7 +32,7 @@
      <ITEM name="nItems">0</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="1125" x="1552" flags="00008023" y="292" h="938" pid="0" iid="5">
+   <POPUP w="1125" x="1755" flags="00008023" y="460" h="938" pid="0" iid="5">
     <PROPERTIES>
      <ITEM name="AutoEcho">0</ITEM>
      <ITEM name="HexMode">0</ITEM>
@@ -340,16 +340,26 @@
    </POPUP>
    <POPUP w="600" x="720" flags="0000002a" y="632" h="400" pid="100" iid="1">
     <PROPERTIES>
+     <ITEM name="Breakpoint 0">"",8000520,0000,D408,3631,-2140911824
+</ITEM>
+     <ITEM name="Breakpoint 1">"",80005AE,0000,74CE,3631,-793461184
+</ITEM>
+     <ITEM name="Breakpoint 2">"",8001CA0,0000,3A20,3631,1069404080
+</ITEM>
+     <ITEM name="Breakpoint 3">"",800054C,0000,CCED,3631,-793461184
+</ITEM>
+     <ITEM name="Breakpoint 4">"",8001C78,0000,82BC,3631,1069404080
+</ITEM>
      <ITEM name="CaseSensitive">No</ITEM>
      <ITEM name="DISPADDRS">Yes</ITEM>
      <ITEM name="DISPLNUMS">No</ITEM>
      <ITEM name="DISPOPCODES">No</ITEM>
      <ITEM name="FIXUPBPTS">Yes</ITEM>
      <ITEM name="WordsOnly">No</ITEM>
-     <ITEM name="nBreakpoints">0</ITEM>
+     <ITEM name="nBreakpoints">3</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="300" x="740" flags="0000000b" y="732" h="300" pid="101" iid="1">
+   <POPUP w="300" x="740" flags="0000000a" y="732" h="300" pid="101" iid="1">
     <PROPERTIES>
      <ITEM name="Address Column Width">90</ITEM>
      <ITEM name="AutoResize">No</ITEM>
@@ -366,10 +376,10 @@
      <ITEM name="nItems">0</ITEM>
     </PROPERTIES>
    </POPUP>
-   <POPUP w="416" x="760" flags="00000008" y="933" h="344" pid="102" iid="1">
+   <POPUP w="30" x="760" flags="00000008" y="933" h="13" pid="102" iid="1">
     <PROPERTIES/>
    </POPUP>
-   <POPUP w="312" x="780" flags="00000008" y="953" h="449" pid="191" iid="1">
+   <POPUP w="22" x="780" flags="00000008" y="953" h="18" pid="191" iid="1">
     <PROPERTIES/>
    </POPUP>
   </PWI>
